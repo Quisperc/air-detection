@@ -18,12 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "dht11/dht11.h" // 包含DHT11温湿度传感器驱动头文件
+#include "mq4/mq4.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -69,9 +71,9 @@ void Enable_DWT(void)
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -97,11 +99,17 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
-  /* 初始化DHT11温湿度传感器 */
-  DHT11_Init(DHT11_DATA2_GPIO_Port, DHT11_DATA2_Pin); // 设置DHT11连接的GPIO端口和引脚
-  char uart_buf[50];                                // 定义UART发送缓冲区
-  DHT11_Data sensor_data;                           // 定义DHT11数据结构体
+  /* 初始化传感器 */
+  // 初始化DHT11温湿度传感器
+  DHT11_Init(DHT11_DATA2_GPIO_Port, DHT11_DATA2_Pin);
+  char uart_buf[50];      // 定义UART发送缓冲区
+  DHT11_Data sensor_data; // 定义DHT11数据结构体
+
+  // 初始化MQ4甲烷气体传感器
+  MQ4_Init(&hadc1);              // 传递ADC句柄
+  MQ4_CalibState mq4_calib_stat; // 校准状态跟踪变量
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -111,38 +119,76 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    /* 读取DHT11温湿度数据并通过UART发送 */
-    if (DHT11_Read(&sensor_data) == HAL_OK) // 读取成功
+
+    /* MQ4传感器校准处理 */
+    // mq4_calib_stat = MQ4_GetCalibStatus();
+    // if (mq4_calib_stat != MQ4_CALIB_DONE)
+    // {
+    //   // 执行校准过程（非阻塞）
+    //   MQ4_Calibrate();
+
+    //   // 每秒发送一次校准状态信息
+    //   static uint32_t last_msg = 0;
+    //   if (HAL_GetTick() - last_msg > 1000)
+    //   {
+    //     char buf[60];
+    //     int len = snprintf(buf, sizeof(buf),
+    //                        "[MQ4] Calibrating... %d/%d samples, Remain: %ds\r\n",
+    //                        MQ4_GetSampleCount(),      // 已采样次数
+    //                        MQ4_GetCalibrationTotal(), // 总采样次数
+    //                        MQ4_GetRemainingTime());   // 剩余校准时间
+    //     // 确保使用实际长度而非strlen
+    //     HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
+    //     last_msg = HAL_GetTick();
+    //   }
+    //   HAL_Delay(200);
+    //   continue; // 跳过传感器数据采集，继续校准
+    // }
+
+    /* 传感器数据采集与发送 */
+    // 1. 读取DHT11温湿度数据
+    if (DHT11_Read(&sensor_data) == HAL_OK)
     {
-      // 格式化温湿度数据为字符串
-      sprintf(uart_buf, "Humidity: %d.%d%%, Temp: %d.%dC\r\n",
-              sensor_data.humidity, sensor_data.humidity_dec,
-              sensor_data.temperature, sensor_data.temperature_dec);
-      // 通过UART发送数据
-      HAL_UART_Transmit(&huart1, (uint8_t *)uart_buf, strlen(uart_buf), 100);
+      // 读取MQ4甲烷气体浓度数据
+      float ppm = MQ4_ReadPPM();
+
+      // 发送所有数据
+      char report[128];
+      int report_len = snprintf(report, sizeof(report),
+                                "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM\r\n",
+                                sensor_data.humidity, sensor_data.humidity_dec,
+                                sensor_data.temperature, sensor_data.temperature_dec,
+                                ppm);
+
+      // 单次UART传输所有数据
+      HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
     }
-    else // 读取失败
+    else
     {
       // 发送读取错误消息
-      HAL_UART_Transmit(&huart1, (uint8_t *)"Read Error!\r\n", 13, 100);
+      const char *err_msg = "DHT11 Read Error!\r\n";
+      HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 300);
     }
-    HAL_Delay(2000); // 延时2秒再次读取，避免频繁读取DHT11
+
+    // 延时2秒再次读取，避免频繁读取传感器
+    HAL_Delay(2000);
   }
   /* USER CODE END 3 */
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -156,15 +202,20 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
@@ -175,9 +226,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -189,14 +240,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

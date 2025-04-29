@@ -557,12 +557,12 @@ ARM Macro Assembler    Page 9
               00000200 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
-ork --depend=test\startup_stm32f103xe.d -otest\startup_stm32f103xe.o -I.\RTE\_t
-est -IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include -IC:
-\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include --prede
-fine="__UVISION_VERSION SETA 536" --predefine="_RTE_ SETA 1" --predefine="STM32
-F10X_HD SETA 1" --predefine="_RTE_ SETA 1" --list=startup_stm32f103xe.lst start
-up_stm32f103xe.s
+ork --depend=air-detection\startup_stm32f103xe.d -oair-detection\startup_stm32f
+103xe.o -I.\RTE\_air-detection -IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.
+8.0\CMSIS\Core\Include -IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2
+.4.1\Device\Include --predefine="__UVISION_VERSION SETA 536" --predefine="_RTE_
+ SETA 1" --predefine="STM32F10X_HD SETA 1" --predefine="_RTE_ SETA 1" --list=st
+artup_stm32f103xe.lst startup_stm32f103xe.s
 
 
 
