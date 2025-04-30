@@ -119,7 +119,7 @@ int main(void)
   SGP30_DATA sgp30_data;
 
   // 报告初始化完成
-  HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30初始化完成，等待预热...\r\n", 32, 100);
+  HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30Initialization, wait for the warm-up...\r\n", 47, 100);
 
   // 报告数据
   char report[128];
@@ -160,48 +160,31 @@ int main(void)
 
     /* 传感器数据采集与发送 */
     // 1. 读取DHT11温湿度数据
-    // if (DHT11_Read(&sensor_data) == HAL_OK)
-    // {
-    //   // 读取MQ4甲烷气体浓度数据
-    //   float ppm = MQ4_ReadPPM();
-
-    //   // 发送所有数据
-    //   int report_len = snprintf(report, sizeof(report),
-    //                             "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM\r\n",
-    //                             sensor_data.humidity, sensor_data.humidity_dec,
-    //                             sensor_data.temperature, sensor_data.temperature_dec,
-    //                             ppm);
-
-    //   // 单次UART传输所有数据
-    //   HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
-    // }
-    // else
-    // {
-    //   // 发送读取错误消息
-    //   const char *err_msg = "DHT11 Read Error!\r\n";
-    //   HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 300);
-    // }
-
-    static uint32_t last_read = 0;
-
-    // 每2秒读取一次SGP30数据
-    if (HAL_GetTick() - last_read > 2000)
+    if (DHT11_Read(&sensor_data) != HAL_OK)
     {
-      if (sgp30_read(&sgp30_data) == HAL_OK)
-      {
-        char buf[60];
-        int len = snprintf(buf, sizeof(buf),
-                           "TVOC: %u ppb, CO2eq: %u ppm\r\n",
-                           sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm);
-        HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
-      }
-      else
-      {
-        // 添加错误处理
-        HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 读取错误!\r\n", 19, 100);
-      }
-      last_read = HAL_GetTick();
+      // 发送读取错误消息
+      const char *err_msg = "DHT11 Read Error!\r\n";
+      HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 300);
     }
+
+    // 2. 读取MQ4甲烷气体浓度数据
+    float ppm = MQ4_ReadPPM();
+
+    // 3. 读取SGP30二氧化碳和TVOC浓度
+    if (sgp30_read(&sgp30_data) != HAL_OK)
+    {
+      // 添加错误处理
+      HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 读取错误!\r\n", 19, 100);
+    }
+    // 发送所有数据
+    int report_len = snprintf(report, sizeof(report),
+                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM\r\n",
+                              sensor_data.humidity, sensor_data.humidity_dec,
+                              sensor_data.temperature, sensor_data.temperature_dec,
+                              ppm, sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm);
+    // 单次UART传输所有数据
+    HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
+    static uint32_t last_read = 0;
 
     // 延时2秒再次读取，避免频繁读取传感器
     HAL_Delay(2000);

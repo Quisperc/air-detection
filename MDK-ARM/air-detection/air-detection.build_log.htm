@@ -32,29 +32,19 @@ compiling main.c...
   #endif /* MQ4_H */
 ../Core/Src/sgp30/sgp30.h(42): warning:  #1-D: last line of file ends without a newline
   #endif
-../Core/Src/main.c(193): warning:  #223-D: function "snprintf" declared implicitly
-          int len = snprintf(buf, sizeof(buf),
+../Core/Src/main.c(180): warning:  #223-D: function "snprintf" declared implicitly
+      int report_len = snprintf(report, sizeof(report),
+../Core/Src/main.c(187): warning:  #177-D: variable "last_read"  was declared but never referenced
+      static uint32_t last_read = 0;
 ../Core/Src/main.c(110): warning:  #177-D: variable "uart_buf"  was declared but never referenced
     char uart_buf[50];      // 定义UART发送缓冲区
-../Core/Src/main.c(111): warning:  #177-D: variable "sensor_data"  was declared but never referenced
-    DHT11_Data sensor_data; // 定义DHT11数据结构�?
 ../Core/Src/main.c(115): warning:  #177-D: variable "mq4_calib_stat"  was declared but never referenced
     MQ4_CalibState mq4_calib_stat; // 校准状态跟踪变�?
-../Core/Src/main.c(125): warning:  #177-D: variable "report"  was declared but never referenced
-    char report[128];
-../Core/Src/main.c: 7 warnings, 0 errors
-compiling sgp30.c...
-..\Core\Src\sgp30\sgp30.h(42): warning:  #1-D: last line of file ends without a newline
-  #endif
-..\Core\Src\sgp30\sgp30.c(17): warning:  #870-D: invalid multibyte character sequence
-  		char *err_msg = "SGP30 初始化失�?!\r\n";
-..\Core\Src\sgp30\sgp30.c(103): warning:  #1-D: last line of file ends without a newline
-  }
-..\Core\Src\sgp30\sgp30.c: 3 warnings, 0 errors
+../Core/Src/main.c: 6 warnings, 0 errors
 linking...
-Program Size: Code=8188 RO-data=360 RW-data=36 ZI-data=1852  
+Program Size: Code=22158 RO-data=830 RW-data=32 ZI-data=1848  
 FromELF: creating hex file...
-"air-detection\air-detection.axf" - 0 Error(s), 10 Warning(s).
+"air-detection\air-detection.axf" - 0 Error(s), 6 Warning(s).
 
 <h2>Software Packages used:</h2>
 
