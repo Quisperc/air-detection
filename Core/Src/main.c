@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -26,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "dht11/dht11.h" // 包含DHT11温湿度传感器驱动头文件
 #include "mq4/mq4.h"
+#include "sgp30/sgp30.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,9 +73,9 @@ void Enable_DWT(void)
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -100,6 +102,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
+  MX_I2C2_Init();
   /* USER CODE BEGIN 2 */
   /* 初始化传感器 */
   // 初始化DHT11温湿度传感器
@@ -110,6 +113,21 @@ int main(void)
   // 初始化MQ4甲烷气体传感器
   MQ4_Init(&hadc1);              // 传递ADC句柄
   MQ4_CalibState mq4_calib_stat; // 校准状态跟踪变量
+  char report[128];
+
+  // 初始化SGP30气体传感器
+  // SGP30初始化
+  if (SGP30_Init(&hi2c2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  // 运行自检
+  if (SGP30_RunSelfTest() == HAL_OK)
+  {
+    HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 SelfTest OK\r\n", 18, 100);
+  }
+  SGP30_Data sgp30_data;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -147,27 +165,42 @@ int main(void)
 
     /* 传感器数据采集与发送 */
     // 1. 读取DHT11温湿度数据
-    if (DHT11_Read(&sensor_data) == HAL_OK)
-    {
-      // 读取MQ4甲烷气体浓度数据
-      float ppm = MQ4_ReadPPM();
+    // if (DHT11_Read(&sensor_data) == HAL_OK)
+    // {
+    //   // 读取MQ4甲烷气体浓度数据
+    //   float ppm = MQ4_ReadPPM();
 
-      // 发送所有数据
-      char report[128];
-      int report_len = snprintf(report, sizeof(report),
-                                "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM\r\n",
-                                sensor_data.humidity, sensor_data.humidity_dec,
-                                sensor_data.temperature, sensor_data.temperature_dec,
-                                ppm);
+    //   // 发送所有数据
+    //   int report_len = snprintf(report, sizeof(report),
+    //                             "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM\r\n",
+    //                             sensor_data.humidity, sensor_data.humidity_dec,
+    //                             sensor_data.temperature, sensor_data.temperature_dec,
+    //                             ppm);
 
-      // 单次UART传输所有数据
-      HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
-    }
-    else
+    //   // 单次UART传输所有数据
+    //   HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
+    // }
+    // else
+    // {
+    //   // 发送读取错误消息
+    //   const char *err_msg = "DHT11 Read Error!\r\n";
+    //   HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 300);
+    // }
+
+    static uint32_t last_read = 0;
+
+    // 每2秒读取一次
+    if (HAL_GetTick() - last_read > 2000)
     {
-      // 发送读取错误消息
-      const char *err_msg = "DHT11 Read Error!\r\n";
-      HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 300);
+      if (SGP30_ReadMeasurement(&sgp30_data) == HAL_OK)
+      {
+        char buf[60];
+        snprintf(buf, sizeof(buf),
+                 "TVOC: %uppb, CO2eq: %uppm\r\n",
+                 sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm);
+        HAL_UART_Transmit(&huart1, (uint8_t *)buf, strlen(buf), 100);
+      }
+      last_read = HAL_GetTick();
     }
 
     // 延时2秒再次读取，避免频繁读取传感器
@@ -177,9 +210,9 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -187,8 +220,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -202,8 +235,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -226,9 +260,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -240,14 +274,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

@@ -26,10 +26,13 @@ air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h
 air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h
 air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
+air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
 air-detection\main.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 air-detection\main.o: ../Core/Inc/adc.h
+air-detection\main.o: ../Core/Inc/i2c.h
 air-detection\main.o: ../Core/Inc/usart.h
 air-detection\main.o: ../Core/Inc/gpio.h
 air-detection\main.o: ../Core/Src/dht11/dht11.h
 air-detection\main.o: ../Core/Src/mq4/mq4.h
+air-detection\main.o: ../Core/Src/sgp30/sgp30.h

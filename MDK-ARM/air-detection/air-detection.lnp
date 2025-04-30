@@ -3,6 +3,7 @@
 "air-detection\main.o"
 "air-detection\gpio.o"
 "air-detection\adc.o"
+"air-detection\i2c.o"
 "air-detection\usart.o"
 "air-detection\stm32f1xx_it.o"
 "air-detection\stm32f1xx_hal_msp.o"
@@ -19,12 +20,14 @@
 "air-detection\stm32f1xx_hal_flash.o"
 "air-detection\stm32f1xx_hal_flash_ex.o"
 "air-detection\stm32f1xx_hal_exti.o"
+"air-detection\stm32f1xx_hal_i2c.o"
 "air-detection\stm32f1xx_hal_tim.o"
 "air-detection\stm32f1xx_hal_tim_ex.o"
 "air-detection\stm32f1xx_hal_uart.o"
 "air-detection\system_stm32f1xx.o"
 "air-detection\mq4.o"
 "air-detection\dht11.o"
+"air-detection\sgp30.o"
 --strict --scatter "air-detection\air-detection.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

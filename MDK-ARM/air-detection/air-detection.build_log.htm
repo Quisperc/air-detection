@@ -22,25 +22,21 @@ Dialog DLL:      TCM.DLL V1.53.0.0
  
 <h2>Project:</h2>
 C:\Embedded_development\ARM_CubeMX\air-detection\MDK-ARM\air-detection.uvprojx
-Project File Date:  04/29/2025
+Project File Date:  04/30/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 7 (build 960)', folder: 'C:\Embedded_development\Keil_v5\ARM\ARMCC\Bin'
 Build target 'air-detection'
-compiling main.c...
-../Core/Src/mq4/mq4.h(89): warning:  #1-D: last line of file ends without a newline
-  #endif /* MQ4_H */
-../Core/Src/main.c(157): warning:  #223-D: function "snprintf" declared implicitly
-        int report_len = snprintf(report, sizeof(report),
-../Core/Src/main.c(107): warning:  #177-D: variable "uart_buf"  was declared but never referenced
-    char uart_buf[50];      // 定义UART发送缓冲区
-../Core/Src/main.c(112): warning:  #177-D: variable "mq4_calib_stat"  was declared but never referenced
-    MQ4_CalibState mq4_calib_stat; // 校准状态跟踪变�?
-../Core/Src/main.c: 4 warnings, 0 errors
+compiling sgp30.c...
+..\Core\Src\sgp30\sgp30.h(31): warning:  #1-D: last line of file ends without a newline
+  #endif /* SGP30_H */
+..\Core\Src\sgp30\sgp30.c(86): warning:  #1-D: last line of file ends without a newline
+  }
+..\Core\Src\sgp30\sgp30.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=19422 RO-data=738 RW-data=32 ZI-data=1768  
+Program Size: Code=8252 RO-data=360 RW-data=48 ZI-data=1848  
 FromELF: creating hex file...
-"air-detection\air-detection.axf" - 0 Error(s), 4 Warning(s).
+"air-detection\air-detection.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -64,7 +60,7 @@ Package Vendor: Keil
 
    * Component: ARM::CMSIS:CORE:5.5.0
       Include file:  CMSIS\Core\Include\tz_context.h
-Build Time Elapsed:  00:00:04
+Build Time Elapsed:  00:00:02
 </pre>
 </body>
 </html>
