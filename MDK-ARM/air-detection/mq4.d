@@ -28,6 +28,8 @@ air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h
 air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h
 air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h
 air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h
+air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h
+air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
 air-detection\mq4.o: ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 air-detection\mq4.o: C:\Embedded_development\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 air-detection\mq4.o: ../Core/Inc/main.h

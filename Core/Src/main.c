@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "i2c.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
@@ -28,6 +29,7 @@
 #include "dht11/dht11.h" // 包含DHT11温湿度传感器驱动头文件
 #include "mq4/mq4.h"
 #include "sgp30/sgp30.h"
+#include "gp2y1014au/gp2y1014au.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,6 +105,8 @@ int main(void)
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_I2C2_Init();
+  MX_ADC2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   /* 初始化传感器 */
   // 初始化DHT11温湿度传感器
@@ -117,9 +121,11 @@ int main(void)
   // 初始化SGP30气体传感器
   sgp30_init(&hi2c2);
   SGP30_DATA sgp30_data;
-
   // 报告初始化完成
-  HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30Initialization, wait for the warm-up...\r\n", 47, 100);
+  HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 Initialization, wait for the warm-up...\r\n", 47, 100);
+
+  // 粉尘传感器初始化
+  GP2Y1014AU_Init(&hadc1, &htim3);
 
   // 报告数据
   char report[128];
@@ -174,20 +180,38 @@ int main(void)
     if (sgp30_read(&sgp30_data) != HAL_OK)
     {
       // 添加错误处理
-      HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 读取错误!\r\n", 19, 100);
+      HAL_UART_Transmit(&huart1, (uint8_t *)"SGP30 Read Error!\r\n", 19, 100);
     }
+
+    // 4. 读取GP2Y1014AU读取PM2.5
+    // static uint32_t last_sample = 0;
+
+    // if (HAL_GetTick() - last_sample >= DUST_SAMPLE_MS)
+    // {
+    //   float density = GP2Y1014AU_ReadDustDensity();
+
+    //   //char report[50];
+    //   //sprintf(report, "Dust(PM2.5): %.1f ug/m^3\r\n", density);
+    //   //HAL_UART_Transmit(&huart1, (uint8_t *)report, strlen(report), 100);
+
+    //   last_sample = HAL_GetTick();
+    // }
+    // 4. 读取GP2Y1014AU读取PM2.5
+    float density = GP2Y1014AU_ReadDustDensity();
+
     // 发送所有数据
     int report_len = snprintf(report, sizeof(report),
-                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM\r\n",
+                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM, Dust(PM2.5): %.1f ug/m^3\r\n",
                               sensor_data.humidity, sensor_data.humidity_dec,
                               sensor_data.temperature, sensor_data.temperature_dec,
-                              ppm, sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm);
+                              ppm, sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm,
+                              density);
     // 单次UART传输所有数据
     HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
     static uint32_t last_read = 0;
 
     // 延时2秒再次读取，避免频繁读取传感器
-    HAL_Delay(2000);
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }

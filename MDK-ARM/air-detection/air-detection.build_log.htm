@@ -32,19 +32,31 @@ compiling main.c...
   #endif /* MQ4_H */
 ../Core/Src/sgp30/sgp30.h(42): warning:  #1-D: last line of file ends without a newline
   #endif
-../Core/Src/main.c(180): warning:  #223-D: function "snprintf" declared implicitly
+../Core/Src/gp2y1014au/gp2y1014au.h(18): warning:  #1-D: last line of file ends without a newline
+  #endif
+../Core/Src/main.c(203): warning:  #223-D: function "snprintf" declared implicitly
       int report_len = snprintf(report, sizeof(report),
-../Core/Src/main.c(187): warning:  #177-D: variable "last_read"  was declared but never referenced
+../Core/Src/main.c(211): warning:  #177-D: variable "last_read"  was declared but never referenced
       static uint32_t last_read = 0;
-../Core/Src/main.c(110): warning:  #177-D: variable "uart_buf"  was declared but never referenced
+../Core/Src/main.c(114): warning:  #177-D: variable "uart_buf"  was declared but never referenced
     char uart_buf[50];      // 定义UART发送缓冲区
-../Core/Src/main.c(115): warning:  #177-D: variable "mq4_calib_stat"  was declared but never referenced
+../Core/Src/main.c(119): warning:  #177-D: variable "mq4_calib_stat"  was declared but never referenced
     MQ4_CalibState mq4_calib_stat; // 校准状态跟踪变�?
-../Core/Src/main.c: 6 warnings, 0 errors
+../Core/Src/main.c: 7 warnings, 0 errors
+compiling gp2y1014au.c...
+..\Core\Src\gp2y1014au\gp2y1014au.h(18): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Core\Src\gp2y1014au\gp2y1014au.c: 1 warning, 0 errors
+compiling sgp30.c...
+..\Core\Src\sgp30\sgp30.h(42): warning:  #1-D: last line of file ends without a newline
+  #endif
+..\Core\Src\sgp30\sgp30.c(103): warning:  #1-D: last line of file ends without a newline
+  }
+..\Core\Src\sgp30\sgp30.c: 2 warnings, 0 errors
 linking...
-Program Size: Code=22158 RO-data=830 RW-data=32 ZI-data=1848  
+Program Size: Code=23902 RO-data=854 RW-data=40 ZI-data=1968  
 FromELF: creating hex file...
-"air-detection\air-detection.axf" - 0 Error(s), 6 Warning(s).
+"air-detection\air-detection.axf" - 0 Error(s), 10 Warning(s).
 
 <h2>Software Packages used:</h2>
 

@@ -14,8 +14,8 @@ void sgp30_init(I2C_HandleTypeDef *hi2c2)
 	if (status != HAL_OK)
 	{
 		// 初始化失败，发送错误信息
-		char *err_msg = "SGP30 初始化失败!\r\n";
-		HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 100);
+		char *err_msg = "SGP30 Initialize Error!\r\n";
+		HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 26, 100);
 		return;
 	}
 
