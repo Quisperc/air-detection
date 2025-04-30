@@ -1,7 +1,7 @@
 Dependencies for Project 'air-detection', Target 'air-detection': (DO NOT MODIFY !)
 CompilerVersion: 5060960::V5.06 update 7 (build 960)::.\ARMCC
 F (startup_stm32f103xe.s)(0x6811946D)(--cpu Cortex-M3 -g --apcs=interwork -I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include--pd "__UVISION_VERSION SETA 536" --pd "_RTE_ SETA 1" --pd "STM32F10X_HD SETA 1" --pd "_RTE_ SETA 1"--list startup_stm32f103xe.lst --xref -o air-detection\startup_stm32f103xe.o --depend air-detection\startup_stm32f103xe.d)
-F (../Core/Src/main.c)(0x681195A6)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include-D__UVISION_VERSION="536" -D_RTE_ -DSTM32F10X_HD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xE-o air-detection\main.o --omf_browse air-detection\main.crf --depend air-detection\main.d)
+F (../Core/Src/main.c)(0x6811B0A2)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include-D__UVISION_VERSION="536" -D_RTE_ -DSTM32F10X_HD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xE-o air-detection\main.o --omf_browse air-detection\main.crf --depend air-detection\main.d)
 I (../Core/Inc/main.h)(0x6810D537)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x67EBE147)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x68119469)
@@ -37,7 +37,7 @@ I (../Core/Inc/usart.h)(0x6810C251)
 I (../Core/Inc/gpio.h)(0x6810C251)
 I (../Core/Src/dht11/dht11.h)(0x6810CEB4)
 I (../Core/Src/mq4/mq4.h)(0x6810FFF9)
-I (../Core/Src/sgp30/sgp30.h)(0x68119487)
+I (../Core/Src/sgp30/sgp30.h)(0x6811B0A2)
 F (../Core/Src/gpio.c)(0x68119467)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include-D__UVISION_VERSION="536" -D_RTE_ -DSTM32F10X_HD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xE-o air-detection\gpio.o --omf_browse air-detection\gpio.crf --depend air-detection\gpio.d)
 I (../Core/Inc/gpio.h)(0x6810C251)
 I (../Core/Inc/main.h)(0x6810D537)
@@ -810,8 +810,8 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h)(0x67EBE147)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x67EBE147)
 I (../Core/Inc/main.h)(0x6810D537)
 F (..\Core\Src\dht11\dht11.h)(0x6810CEB4)()
-F (..\Core\Src\sgp30\sgp30.c)(0x68119498)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include-D__UVISION_VERSION="536" -D_RTE_ -DSTM32F10X_HD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xE-o air-detection\sgp30.o --omf_browse air-detection\sgp30.crf --depend air-detection\sgp30.d)
-I (..\Core\Src\sgp30\sgp30.h)(0x68119487)
+F (..\Core\Src\sgp30\sgp30.c)(0x6811B0AC)(--c99 -c --cpu Cortex-M3 -g -O3 --apcs=interwork --split_sections -I ../Core/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc -I ../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I ../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I ../Drivers/CMSIS/Include-I.\RTE\_air-detection-IC:\Embedded_development\Arm\Packs\ARM\CMSIS\5.8.0\CMSIS\Core\Include-IC:\Embedded_development\Arm\Packs\Keil\STM32F1xx_DFP\2.4.1\Device\Include-D__UVISION_VERSION="536" -D_RTE_ -DSTM32F10X_HD -D_RTE_ -DUSE_HAL_DRIVER -DSTM32F103xE-o air-detection\sgp30.o --omf_browse air-detection\sgp30.crf --depend air-detection\sgp30.d)
+I (..\Core\Src\sgp30\sgp30.h)(0x6811B0A2)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h)(0x67EBE147)
 I (../Core/Inc/stm32f1xx_hal_conf.h)(0x68119469)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h)(0x67EBE147)
@@ -840,5 +840,6 @@ I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h)(0x67EBE147)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h)(0x67EBE147)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h)(0x67EBE147)
 I (../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h)(0x67EBE147)
-I (C:\Embedded_development\Keil_v5\ARM\ARMCC\include\string.h)(0x6025237E)
-F (..\Core\Src\sgp30\sgp30.h)(0x68119487)()
+I (../Core/Inc/i2c.h)(0x68119468)
+I (../Core/Inc/main.h)(0x6810D537)
+F (..\Core\Src\sgp30\sgp30.h)(0x6811B0A2)()

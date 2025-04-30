@@ -1,86 +1,103 @@
 #include "sgp30.h"
-#include "string.h"
+#include "i2c.h"
+#include <stdint.h> // 添加标准整数类型头文件
+// extern I2C_HandleTypeDef hi2c2;
+extern UART_HandleTypeDef huart1;
 
-#define SGP30_I2C_ADDR (0x58 << 1) // 7位地址左移1位
-#define SGP30_CMD_INIT 0x2003
-#define SGP30_CMD_MEASURE 0x2008
-#define SGP30_CMD_SELFTEST 0x2032
-
-static I2C_HandleTypeDef *hi2c_sgp30 = NULL;
-
-// 发送命令（16位大端格式）
-static HAL_StatusTypeDef send_command(uint16_t cmd)
+// 定义SGP30初始化函数，发送初始化命令
+void sgp30_init(I2C_HandleTypeDef *hi2c2)
 {
-	uint8_t buf[2] = {(uint8_t)(cmd >> 8), (uint8_t)cmd};
-	return HAL_I2C_Master_Transmit(hi2c_sgp30, SGP30_I2C_ADDR, buf, 2, 100);
-}
+	uint8_t cmd[2] = {0x20, 0x03}; // 初始化命令为0x2003
+	HAL_StatusTypeDef status;
 
-// 读取数据带CRC校验
-static HAL_StatusTypeDef read_data(uint8_t *data, uint8_t len)
-{
-	if (HAL_I2C_Master_Receive(hi2c_sgp30, SGP30_I2C_ADDR, data, len * 3, 100) != HAL_OK)
-		return HAL_ERROR;
-
-	// CRC校验（多项式0x31）
-	for (int i = 0; i < len; i++)
+	status = HAL_I2C_Master_Transmit(hi2c2, SGP30_ADDR << 1, cmd, 2, 100); // 发送初始化命令
+	if (status != HAL_OK)
 	{
-		uint8_t crc = 0xFF;
-		crc ^= data[i * 3];
-		for (uint8_t b = 0; b < 8; b++)
-			crc = (crc << 1) ^ ((crc & 0x80) ? 0x31 : 0);
-
-		crc ^= data[i * 3 + 1];
-		for (uint8_t b = 0; b < 8; b++)
-			crc = (crc << 1) ^ ((crc & 0x80) ? 0x31 : 0);
-
-		if (crc != data[i * 3 + 2])
-			return HAL_ERROR;
+		// 初始化失败，发送错误信息
+		char *err_msg = "SGP30 初始化失败!\r\n";
+		HAL_UART_Transmit(&huart1, (uint8_t *)err_msg, 20, 100);
+		return;
 	}
-	return HAL_OK;
+
+	HAL_Delay(20); // 等待初始化完成（数据手册建议）
 }
 
-HAL_StatusTypeDef SGP30_Init(I2C_HandleTypeDef *hi2c)
+// 定义SGP30读取数据函数，返回CO2和TVOC的值
+uint8_t sgp30_read(SGP30_DATA *result)
 {
-	hi2c_sgp30 = hi2c;
+	uint8_t cmd[2] = {0x20, 0x08}; // 读取命令为0x2008
+	uint8_t data[6];			   // 存储返回的6个字节数据
+	uint8_t crc;				   // 存储CRC校验值
+	HAL_StatusTypeDef status;
 
-	// 发送初始化命令
-	if (send_command(SGP30_CMD_INIT) != HAL_OK)
+	// 初始化结果为0，防止读取失败时返回随机值
+	// result->co2_eq_ppm = 0;
+	// result->tvoc_ppb = 0;
+
+	// 发送读取命令
+	status = HAL_I2C_Master_Transmit(&hi2c2, SGP30_ADDR << 1, cmd, 2, 100);
+	if (status != HAL_OK)
+	{
 		return HAL_ERROR;
+	}
 
-	HAL_Delay(500); // 初始化需要时间
-	return HAL_OK;
+	HAL_Delay(25); // 等待测量完成（数据手册建议）
+
+	// 接收6个字节数据
+	status = HAL_I2C_Master_Receive(&hi2c2, SGP30_ADDR << 1 | 0x01, data, 6, 100);
+	if (status != HAL_OK)
+	{
+		return HAL_ERROR;
+	}
+
+	// 验证CO2数据的CRC校验
+	crc = sgp30_crc(data, 2); // 计算前两个字节的CRC校验值
+	if (crc == data[2])
+	{												   // 如果和第三个字节相同，说明CO2数据有效
+		result->co2_eq_ppm = (data[0] << 8) | data[1]; // 将前两个字节合并为CO2值
+	}
+	else
+	{
+		// CRC校验失败，返回错误
+		return HAL_ERROR;
+	}
+
+	// 验证TVOC数据的CRC校验
+	crc = sgp30_crc(data + 3, 2); // 计算第四和第五个字节的CRC校验值
+	if (crc == data[5])
+	{												 // 如果和第六个字节相同，说明TVOC数据有效
+		result->tvoc_ppb = (data[3] << 8) | data[4]; // 将第四和第五个字节合并为TVOC值
+	}
+	else
+	{
+		// CRC校验失败，返回错误
+		return HAL_ERROR;
+	}
+
+	return HAL_OK; // 返回结果
 }
 
-HAL_StatusTypeDef SGP30_ReadMeasurement(SGP30_Data *data)
+// 定义SGP30计算CRC校验值的函数，使用多项式x8 + x5 + x4 + x0
+uint8_t sgp30_crc(uint8_t *data, uint8_t len)
 {
-	static uint8_t raw_data[6];
+	uint8_t crc = 0xFF; // 初始值为0xFF
+	uint8_t bit;		// 存储位掩码
 
-	if (send_command(SGP30_CMD_MEASURE) != HAL_OK)
-		return HAL_ERROR;
+	for (uint8_t i = 0; i < len; i++)
+	{					// 遍历每个字节
+		crc ^= data[i]; // 异或当前字节
+		for (bit = 8; bit > 0; bit--)
+		{ // 遍历每个位
+			if (crc & 0x80)
+			{ // 如果最高位为1，就左移并异或0x31
+				crc = (crc << 1) ^ 0x31;
+			}
+			else
+			{ // 否则，就左移
+				crc = (crc << 1);
+			}
+		}
+	}
 
-	HAL_Delay(25); // 等待测量完成
-
-	if (read_data(raw_data, 2) != HAL_OK)
-		return HAL_ERROR;
-
-	data->co2_eq_ppm = (raw_data[0] << 8) | raw_data[1];
-	data->tvoc_ppb = (raw_data[3] << 8) | raw_data[4];
-	return HAL_OK;
-}
-
-HAL_StatusTypeDef SGP30_RunSelfTest(void)
-{
-	uint8_t response[3];
-
-	if (send_command(SGP30_CMD_SELFTEST) != HAL_OK)
-		return HAL_ERROR;
-
-	HAL_Delay(220);
-
-	if (read_data(response, 1) != HAL_OK)
-		return HAL_ERROR;
-
-	// 自检成功返回0xD400
-	uint16_t result = (response[0] << 8) | response[1];
-	return (result == 0xD400) ? HAL_OK : HAL_ERROR;
+	return crc; // 返回CRC校验值
 }
