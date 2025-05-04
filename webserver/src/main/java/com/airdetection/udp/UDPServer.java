@@ -31,7 +31,7 @@ public class UDPServer {
     // 定义正则表达式模式匹配STM32发送的数据格式，支持负数和小数
     private static final Pattern DATA_PATTERN = Pattern.compile(
         "Humidity: (\\d+\\.\\d+)%, Temperature: (\\d+\\.\\d+) C, " +
-        "Methane: (-?\\d+\\.\\d+) PPM, TVOC: (\\d+) PPB, CO2eq: (\\d+) PPM, " +
+        "Methane: (-?\\d+\\.\\d+) ppm, TVOC: (\\d+) ppb, CO2eq: (\\d+) ppm, " +
         "Dust\\(PM2\\.5\\): (\\d+\\.\\d+) ug/m\\^3"
     );
     

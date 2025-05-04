@@ -39,10 +39,15 @@ float GP2Y1014AU_ReadDustDensity(void)
 
 	// 读取ADC值
 	uint32_t adc_val = read_adc();
-	float voltage = adc_val * 3.3f / 4095.0f;
-
-	// 计算公式（根据手册曲线拟合）
+	// float voltage = adc_val * 5.0f / 4095.0f;
+	float voltage = adc_val * 3.3f / 4096.0f;
+	// 计算公式（调整后的计算公式，降低系数使PM2.5读数更合理）
 	if (voltage < 0.5)
 		return 0.0f;
-	return (0.17f * voltage - 0.085f) * 1000.0f;
+
+	// 旧公式: (0.17f * voltage - 0.085f) * 1000.0f
+	// 新公式: 调整系数使读数落在正常范围内 (0~100 ug/m³为一般室内水平)
+	// return (0.05f * voltage - 0.025f) * 1000.0f;
+	// return (0.034f * (voltage - 0.6f)) * 1000.0f;
+	return (0.17f * (voltage)-0.1f) * 1000.0f;
 }

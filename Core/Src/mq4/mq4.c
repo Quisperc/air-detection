@@ -98,10 +98,10 @@ void MQ4_Calibrate(void)
 			calibration.last_sample_time = HAL_GetTick();
 
 			// 采样完成后计算R0值
-			if (calibration.sample_count >= 50)
+			if (calibration.sample_count >= 5)
 			{
 				// 计算平均电压和R0电阻值
-				float Vrl = (calibration.sum_adc / 50.0f) * 3.3f / 4095.0f;
+				float Vrl = (calibration.sum_adc / 5.0f) * 3.3f / 4095.0f;
 				R0 = (3.3f - Vrl) * RL / Vrl; // 基于分压电路计算R0
 				calibration.state = MQ4_CALIB_DONE;
 			}
@@ -173,5 +173,5 @@ uint16_t MQ4_GetCalibrationTotal(void)
  */
 uint16_t MQ4_GetRemainingTime(void)
 {
-	return 300 - (calibration.sample_count * 6);
+	return 30 - (calibration.sample_count * 6);
 }

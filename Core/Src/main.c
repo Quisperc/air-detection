@@ -75,9 +75,9 @@ void Enable_DWT(void)
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -185,24 +185,11 @@ int main(void)
     }
 
     // 4. 读取GP2Y1014AU读取PM2.5
-    // static uint32_t last_sample = 0;
-
-    // if (HAL_GetTick() - last_sample >= DUST_SAMPLE_MS)
-    // {
-    //   float density = GP2Y1014AU_ReadDustDensity();
-
-    //   //char report[50];
-    //   //sprintf(report, "Dust(PM2.5): %.1f ug/m^3\r\n", density);
-    //   //HAL_UART_Transmit(&huart1, (uint8_t *)report, strlen(report), 100);
-
-    //   last_sample = HAL_GetTick();
-    // }
-    // 4. 读取GP2Y1014AU读取PM2.5
     float density = GP2Y1014AU_ReadDustDensity();
 
     // 发送所有数据
     int report_len = snprintf(report, sizeof(report),
-                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM, Dust(PM2.5): %.1f ug/m^3\n",
+                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f ppm, TVOC: %u ppb, CO2eq: %u ppm, Dust(PM2.5): %.1f ug/m^3\n",
                               sensor_data.humidity, sensor_data.humidity_dec,
                               sensor_data.temperature, sensor_data.temperature_dec,
                               ppm, sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm,
@@ -224,9 +211,9 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -234,8 +221,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -249,9 +236,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -274,9 +260,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -288,14 +274,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
