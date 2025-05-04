@@ -75,9 +75,9 @@ void Enable_DWT(void)
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -107,6 +107,7 @@ int main(void)
   MX_I2C2_Init();
   MX_ADC2_Init();
   MX_TIM3_Init();
+  MX_UART4_Init();
   /* USER CODE BEGIN 2 */
   /* 初始化传感器 */
   // 初始化DHT11温湿度传感器
@@ -201,14 +202,20 @@ int main(void)
 
     // 发送所有数据
     int report_len = snprintf(report, sizeof(report),
-                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM, Dust(PM2.5): %.1f ug/m^3\r\n",
+                              "Humidity: %d.%d%%, Temperature: %d.%d C, Methane: %.1f PPM, TVOC: %u PPB, CO2eq: %u PPM, Dust(PM2.5): %.1f ug/m^3\n",
                               sensor_data.humidity, sensor_data.humidity_dec,
                               sensor_data.temperature, sensor_data.temperature_dec,
                               ppm, sgp30_data.tvoc_ppb, sgp30_data.co2_eq_ppm,
                               density);
     // 单次UART传输所有数据
-    HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 300); // 增加超时时间到200ms
-    static uint32_t last_read = 0;
+    // 在发送数据前打印内容到调试串口（USART1）
+    HAL_UART_Transmit(&huart1, (uint8_t *)"[STM32] Sending: ", 15, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *)report, report_len, 100);
+    HAL_UART_Transmit(&huart1, (uint8_t *)"\n", 1, 100); // 换行
+
+    // 发送到ESP8266
+    HAL_UART_Transmit(&huart4, (uint8_t *)report, report_len, 100);
+    HAL_UART_Transmit(&huart4, (uint8_t *)"\n", 1, 100); // 仅发送\n
 
     // 延时2秒再次读取，避免频繁读取传感器
     HAL_Delay(1000);
@@ -217,9 +224,9 @@ int main(void)
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -227,8 +234,8 @@ void SystemClock_Config(void)
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
@@ -242,8 +249,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -266,9 +274,9 @@ void SystemClock_Config(void)
 /* USER CODE END 4 */
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -280,14 +288,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
