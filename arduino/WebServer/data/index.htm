@@ -1,0 +1,71 @@
+<html>
+
+<head>
+  <title>HomePage</title>
+  <link Content-Type="text/css" href="/style.css" rel="stylesheet" />
+</head>
+
+<body>
+  <h1>Homepage of the WebServer Example</h1>
+
+  <p>The following pages are available:</p>
+  <ul>
+    <li><a href="/index.htm">/index.htm</a> - This page</li>
+    <li><a href="/files.htm">/files.htm</a> - Manage files on the server</li>
+    <li><a href="/$upload.htm">/$upload.htm</a> - Built-in upload utility</a></li>
+  </ul>
+  
+  <p>The following REST services are available:</p>
+  <ul>
+    <li><a href="/$sysinfo">/$sysinfo</a> - Some system level information</a></li>
+    <li><a href="/$list">/$list</a> - Array of all files</a></li>
+  </ul>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ESP8266 Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    .info {
+      margin-top: 20px;
+      font-size: 1.2em;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>ESP8266 网络信息</h1>
+  <div class="info">
+    <p><span class="label">Wi-Fi 名称 (SSID):</span> <span id="ssid">加载中...</span></p>
+    <p><span class="label">设备 IP 地址:</span> <span id="ip">加载中...</span></p>
+  </div>
+
+  <script>
+    fetch('/wifiinfo')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('ssid').innerText = data.ssid;
+        document.getElementById('ip').innerText = data.ip;
+      })
+      .catch(err => {
+        console.error('获取信息失败:', err);
+        alert('无法从设备获取数据，请刷新重试');
+      });
+  </script>
+</body>
+</html>
