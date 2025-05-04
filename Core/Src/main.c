@@ -141,29 +141,29 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     /* MQ4传感器校准处理 */
-    // mq4_calib_stat = MQ4_GetCalibStatus();
-    // if (mq4_calib_stat != MQ4_CALIB_DONE)
-    // {
-    //   // 执行校准过程（非阻塞）
-    //   MQ4_Calibrate();
+    mq4_calib_stat = MQ4_GetCalibStatus();
+    if (mq4_calib_stat != MQ4_CALIB_DONE)
+    {
+      // 执行校准过程（非阻塞）
+      MQ4_Calibrate();
 
-    //   // 每秒发送一次校准状态信息
-    //   static uint32_t last_msg = 0;
-    //   if (HAL_GetTick() - last_msg > 1000)
-    //   {
-    //     char buf[60];
-    //     int len = snprintf(buf, sizeof(buf),
-    //                        "[MQ4] Calibrating... %d/%d samples, Remain: %ds\r\n",
-    //                        MQ4_GetSampleCount(),      // 已采样次数
-    //                        MQ4_GetCalibrationTotal(), // 总采样次数
-    //                        MQ4_GetRemainingTime());   // 剩余校准时间
-    //     // 确保使用实际长度而非strlen
-    //     HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
-    //     last_msg = HAL_GetTick();
-    //   }
-    //   HAL_Delay(200);
-    //   continue; // 跳过传感器数据采集，继续校准
-    // }
+      // 每秒发送一次校准状态信息
+      static uint32_t last_msg = 0;
+      if (HAL_GetTick() - last_msg > 1000)
+      {
+        char buf[60];
+        int len = snprintf(buf, sizeof(buf),
+                           "[MQ4] Calibrating... %d/%d samples, Remain: %ds\r\n",
+                           MQ4_GetSampleCount(),      // 已采样次数
+                           MQ4_GetCalibrationTotal(), // 总采样次数
+                           MQ4_GetRemainingTime());   // 剩余校准时间
+        // 确保使用实际长度而非strlen
+        HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
+        last_msg = HAL_GetTick();
+      }
+      HAL_Delay(200);
+      continue; // 跳过传感器数据采集，继续校准
+    }
 
     /* 传感器数据采集与发送 */
     // 1. 读取DHT11温湿度数据
