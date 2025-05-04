@@ -128,8 +128,11 @@ int main(void)
   // 粉尘传感器初始化
   GP2Y1014AU_Init(&hadc1, &htim3);
 
+  // 发送粉尘传感器初始化完成消息
+  HAL_UART_Transmit(&huart1, (uint8_t *)"GP2Y1014AU Dust Sensor Initialization Complete\r\n", 48, 100);
+
   // 报告数据
-  char report[128];
+  char report[150];
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,29 +144,29 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     /* MQ4传感器校准处理 */
-    mq4_calib_stat = MQ4_GetCalibStatus();
-    if (mq4_calib_stat != MQ4_CALIB_DONE)
-    {
-      // 执行校准过程（非阻塞）
-      MQ4_Calibrate();
+    // mq4_calib_stat = MQ4_GetCalibStatus();
+    // if (mq4_calib_stat != MQ4_CALIB_DONE)
+    // {
+    //   // 执行校准过程（非阻塞）
+    //   MQ4_Calibrate();
 
-      // 每秒发送一次校准状态信息
-      static uint32_t last_msg = 0;
-      if (HAL_GetTick() - last_msg > 1000)
-      {
-        char buf[60];
-        int len = snprintf(buf, sizeof(buf),
-                           "[MQ4] Calibrating... %d/%d samples, Remain: %ds\r\n",
-                           MQ4_GetSampleCount(),      // 已采样次数
-                           MQ4_GetCalibrationTotal(), // 总采样次数
-                           MQ4_GetRemainingTime());   // 剩余校准时间
-        // 确保使用实际长度而非strlen
-        HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
-        last_msg = HAL_GetTick();
-      }
-      HAL_Delay(200);
-      continue; // 跳过传感器数据采集，继续校准
-    }
+    //   // 每秒发送一次校准状态信息
+    //   static uint32_t last_msg = 0;
+    //   if (HAL_GetTick() - last_msg > 1000)
+    //   {
+    //     char buf[60];
+    //     int len = snprintf(buf, sizeof(buf),
+    //                        "[MQ4] Calibrating... %d/%d samples, Remain: %ds\r\n",
+    //                        MQ4_GetSampleCount(),      // 已采样次数
+    //                        MQ4_GetCalibrationTotal(), // 总采样次数
+    //                        MQ4_GetRemainingTime());   // 剩余校准时间
+    //     // 确保使用实际长度而非strlen
+    //     HAL_UART_Transmit(&huart1, (uint8_t *)buf, len, 100);
+    //     last_msg = HAL_GetTick();
+    //   }
+    //   HAL_Delay(200);
+    //   continue; // 跳过传感器数据采集，继续校准
+    // }
 
     /* 传感器数据采集与发送 */
     // 1. 读取DHT11温湿度数据
@@ -186,6 +189,13 @@ int main(void)
 
     // 4. 读取GP2Y1014AU读取PM2.5
     float density = GP2Y1014AU_ReadDustDensity();
+    float voltage = GP2Y1014AU_ReadVoltage();
+
+    // 输出传感器电压值，便于调试
+    char dust_debug[50];
+    int debug_len = snprintf(dust_debug, sizeof(dust_debug), "Dust Sensor: V=%.2fV, PM2.5=%.1f ug/m^3\r\n",
+                             voltage, density);
+    HAL_UART_Transmit(&huart1, (uint8_t *)dust_debug, debug_len, 100);
 
     // 发送所有数据
     int report_len = snprintf(report, sizeof(report),
