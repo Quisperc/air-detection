@@ -4,8 +4,8 @@
 // ===== 用户配置 =====
 const char* ssid = "杂鱼~♡没网的杂鱼~";      // WiFi名称
 const char* password = "20ddh38xjsi.eea";         // WiFi密码
-const char* targetIPStr = "192.168.31.164";  // 目标服务器IP（电脑）
-const int targetPort = 8080;                 // 目标端口
+const char* targetIPStr = "110.41.143.68";  // 目标服务器IP（电脑）
+const int targetPort = 9091;                 // 目标端口
 
 // ===== 调试配置 =====
 #define DEBUG_BAUDRATE   115200    // 调试串口波特率
