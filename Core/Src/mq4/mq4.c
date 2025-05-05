@@ -163,7 +163,7 @@ uint16_t MQ4_GetSampleCount(void)
  */
 uint16_t MQ4_GetCalibrationTotal(void)
 {
-	return 5; // 总采样次数固定为50
+	return 50; // 总采样次数固定为50
 }
 
 /**
@@ -175,5 +175,5 @@ uint16_t MQ4_GetCalibrationTotal(void)
  */
 uint16_t MQ4_GetRemainingTime(void)
 {
-	return MQ4_GetCalibrationTotal()*6 - (calibration.sample_count * 6);
+	return MQ4_GetCalibrationTotal() * 6 - (calibration.sample_count * 6);
 }

@@ -1,8 +1,0 @@
-com\airdetection\config\WebSocketConfig.class
-com\airdetection\Application.class
-com\airdetection\service\DataService.class
-com\airdetection\controller\ApiController.class
-com\airdetection\model\AirData.class
-com\airdetection\controller\ViewController.class
-com\airdetection\udp\UDPServer.class
-com\airdetection\model\AirData$AirDataBuilder.class
