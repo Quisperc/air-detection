@@ -141,7 +141,7 @@ float MQ4_ReadPPM(void)
 	// 根据MQ-4特性曲线拟合的公式计算PPM值
 	// 公式基于log-log特性曲线: log(ppm) = (log(Rs/R0) - b) / a
 	// 其中a = -0.32, b = 0.48 (根据MQ4数据手册曲线拟合得到)
-	return pow(10.0f, (log10(Rs / R0) - 0.48f) / (-0.32f));
+	return pow(10.0f, (log10(Rs / R0) - 0.38f) / (-0.42f));
 }
 
 /**

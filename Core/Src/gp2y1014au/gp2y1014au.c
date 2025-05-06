@@ -108,7 +108,7 @@ float GP2Y1014AU_ReadDustDensity(void)
 	// 根据Sharp GP2Y1014AU数据手册，使用校准系数计算粉尘浓度
 	// Dust density (μg/m³) = (Voltage - 0.5) * Coefficient
 	// 标准系数为0.17，但根据实际环境可能需要校准
-	float dust_density = (voltage - 0.5f) * 0.17f * 1000.0f;
+	float dust_density = (voltage - 0.5f) * 0.0085f * 1000.0f;
 
 	// 限制范围，避免不合理数值
 	if (dust_density < 0.0f)
